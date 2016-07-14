@@ -96,10 +96,10 @@ configure_gpg()
         echo -e 'GPG_TTY=$(tty)\nexport GPG_TTY' >> ~/.bashrc
     fi
     # Make sure the configuration directory exists
-if ! [ -d !/.gnupg/ ]; then
+if ! [ -d ~/.gnupg/ ]; then
         mkdir -p ~/.gnupg
     fi
-    if [ -f !/.gnupg/gpg.conf ]; then
+    if [ -f ~/.gnupg/gpg.conf ]; then
         read -p "This will overwrite your existing ~/.gnupg/gpg.conf file. Press enter to continue or control+c to abort. " continue
     fi
     cat << EOF > ~/.gnupg/gpg.conf
@@ -115,6 +115,14 @@ keyserver wwwkeys.pgp.net
 keyserver hkp://pool.sks-keyservers.net
 keyserver pgp.zdv.uni-mainz.de
 keyserver-options auto-key-retrieve
+EOF
+    if [ -f ~/.gnupg/gpg-agent.conf ]; then
+        read -p "This will overwrite your existing ~/.gnupg/gpg-agent.conf file. Press enter to continue or control+c to abort. " continue
+    fi
+    cat << EOF > ~/.gnupg/gpg-agent.conf
+default-cache-ttl 300
+max-cache-ttl 999999
+allow-loopback-pinentry
 EOF
 }
 
@@ -162,6 +170,7 @@ add_email_address()
     gpg -r $keyName -e "$passwordFile"
     mv "$passwordFile.gpg" "$muttHome/$emailAddress.gpg"
     shred -fuzn 10 "$passwordFile" 
+    echo "source \"gpg -d ${muttHome/$HOME/~}${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
     echo "Email address added, press enter to continue."
 }
 
