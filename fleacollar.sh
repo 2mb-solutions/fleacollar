@@ -122,7 +122,6 @@ add_email_address()
         fi
     done
     keyName="$(grep 'pgp_sign_as=' "$muttHome/gpg.rc" | cut -d '=' -f2)"
-echo "key name is $keyName"
     # I wish it were possible to just echo the password through gpg and not have an unencrypted file at all.
     # but either it's not, or I just can't figure out how to do it. So we'll use mktemp and shred.
     passwordFile="$(mktemp)"
