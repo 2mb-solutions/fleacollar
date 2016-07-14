@@ -122,14 +122,15 @@ add_email_address()
         fi
     done
     keyName="$(grep 'pgp_sign_as=' "$muttHome/gpg.rc" | cut -d '=' -f2)"
-    keyName="$(gpg --list-secret-keys $keyName | grep '.*@.*' | cut -d '<' -f2 | cut -d '<' -f1)"
-    echo "key name is $keyName"
+    keyName="$(gpg --list-secret-keys $keyName | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1)"
     # I wish it were possible to just echo the password through gpg and not have an unencrypted file at all.
     # but either it's not, or I just can't figure out how to do it. So we'll use mktemp and shred.
     passwordFile="$(mktemp)"
     echo -e "set imap_pass=\"$passOne\"\nset smtp_pass=\"$passOne\"" > "$passwordFile"
     gpg -r $keyName -e "$passwordFile"
-    mv "$passwordfile.gpg" "$muttHome/$emailAddress.gpg"
+    mv "$passwordFile.gpg" "$muttHome/$emailAddress.gpg"
+    shred -fuzn 10 "$passwordFile" 
+    echo "Email address added, press enter to continue."
 }
 
 configure_gmail()
@@ -167,8 +168,8 @@ configure_hotmail()
 echo "unset record" >> "$muttHome/$1"
     echo "set from=$1" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
-echo "set smtp_url=\"smtp://$1@smtp.live.com:587/" >> "$muttHome/$1"
-echo "set folder=imaps://$1@imap.live.com/" >> "$muttHome/$1"
+echo "set smtp_url=\"smtp://$1@smtp-mail.outlook.com:587/" >> "$muttHome/$1"
+echo "set folder=imaps://$1@imap-mail.outlook.com/" >> "$muttHome/$1"
 echo "set ssl_force_tls=yes" >> "$muttHome/$1"
 echo "mailboxes=+INBOX" >> "$muttHome/$1"
 echo "set postponed=+[hotmail]/Drafts" >> "$muttHome/$1"
@@ -183,7 +184,7 @@ echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
 check_dependancies
 initialize_directory
 # Let's make a mainmenu variable to hold all the options for the select loop.
-mainmenu=('Add Email Address' 'Exit')
+mainmenu=('Add Email Address' 'Configure GPG' 'Exit')
 select i in "${mainmenu[@]}" ; do
     functionName="${i,,}"
     functionName="${functionName// /_}"
