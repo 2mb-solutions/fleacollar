@@ -16,6 +16,9 @@ check_dependancies()
         echo "gpg is not installed. Please install gnupg and run this script again."
         exit 1
      fi
+    if ! [ -d ~/.gnupg ]; then
+        read -p "No configuration for GPG was found. to have ${0##*/} configure this for you, select Configure GPG from the main menu. Press enter to continue. " continue
+    fi
 }
 
 initialize_directory()
@@ -84,6 +87,35 @@ initialize_directory()
         keyName="$(gpg --fingerprint $key | head -n 2 | tail -n 1 | rev | cut -d ' ' -f-2 | tr -d "[:space:]" | rev)"
         echo "set pgp_sign_as=$keyName" >> "$muttHome/gpg.rc"
     fi
+}
+
+configure_gpg()
+{
+    # GPG stuff in .bashrc:
+    if ! grep 'GPG_TTY=$(tty)'  ~/.bashrc ; then
+        echo -e 'GPG_TTY=$(tty)\nexport GPG_TTY' >> ~/.bashrc
+    fi
+    # Make sure the configuration directory exists
+if ! [ -d !/.gnupg/ ]; then
+        mkdir -p ~/.gnupg
+    fi
+    if [ -f !/.gnupg/gpg.conf ]; then
+        read -p "This will overwrite your existing ~/.gnupg/gpg.conf file. Press enter to continue or control+c to abort. " continue
+    fi
+    cat << EOF > ~/.gnupg/gpg.conf
+charset utf-8
+require-cross-certification
+no-escape-from-lines
+no-mangle-dos-filenames
+personal-digest-preferences SHA512
+cert-digest-algo SHA512
+use-agent
+default-preference-list SHA512 SHA384 SHA256 SHA224 AES256 AES192 AES CAST5 ZLIB BZIP2 ZIP Uncompressed
+keyserver wwwkeys.pgp.net
+keyserver hkp://pool.sks-keyservers.net
+keyserver pgp.zdv.uni-mainz.de
+keyserver-options auto-key-retrieve
+EOF
 }
 
 add_email_address()
@@ -185,6 +217,7 @@ check_dependancies
 initialize_directory
 # Let's make a mainmenu variable to hold all the options for the select loop.
 mainmenu=('Add Email Address' 'Configure GPG' 'Exit')
+echo "Main menu:"
 select i in "${mainmenu[@]}" ; do
     functionName="${i,,}"
     functionName="${functionName// /_}"
