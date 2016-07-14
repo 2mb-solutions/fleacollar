@@ -110,19 +110,25 @@ add_email_address()
         ;;
     esac
     # Password encryption with gpg
-    until [ "$passOne" = "passTwo" ]; do
-        read -sp "Please enter the password for $1: " passOne
+    passOne=a
+    passTwo=b
+    until [ "$passOne" = "$passTwo" ]; do
+        read -sp "Please enter the password for $emailAddress: " passOne
+        echo
         read -sp "Please enter the password again: " passTwo
-        if [ "$passOne" != "passTwo" ]; then
+        echo
+        if [ "$passOne" != "$passTwo" ]; then
             echo "The passwords do not match."
         fi
     done
-    keyName="$(grep 'pgp_sign_as=' "$muttHome/pgp.rc" | cut -d '=' -f2)"
+    keyName="$(grep 'pgp_sign_as=' "$muttHome/gpg.rc" | cut -d '=' -f2)"
+echo "key name is $keyName"
     # I wish it were possible to just echo the password through gpg and not have an unencrypted file at all.
     # but either it's not, or I just can't figure out how to do it. So we'll use mktemp and shred.
     passwordFile="$(mktemp)"
     echo -e "set imap_pass=\"$passOne\"\nset smtp_pass=\"$passOne\"" > "$passwordFile"
-    gpg -r $keyName -e "$passwordFile" --output "$muttHome/$emailAddress.gpg"
+    gpg -r $keyName -e "$passwordFile"
+    mv "$passwordfile.gpg" "$muttHome/$emailAddress.gpg"
 }
 
 configure_gmail()
