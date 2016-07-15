@@ -14,7 +14,7 @@ check_dependancies()
 {
     local dep
     for dep in gpg mutt ; do
-       if ! command -v gpg &> /dev/null ; then
+       if ! command -v $dep &> /dev/null ; then
             echo "$dep is not installed. Please install $dep and run this script again."
             exit 1
          fi
