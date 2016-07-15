@@ -12,10 +12,13 @@ muttHome=~/.muttest
 # Functions
 check_dependancies()
 {
-   if ! command -v gpg &> /dev/null ; then
-        echo "gpg is not installed. Please install gnupg and run this script again."
-        exit 1
-     fi
+    local dep
+    for dep in gpg mutt ; do
+       if ! command -v gpg &> /dev/null ; then
+            echo "$dep is not installed. Please install $dep and run this script again."
+            exit 1
+         fi
+    done
     if ! [ -d ~/.gnupg ]; then
         read -p "No configuration for GPG was found. to have ${0##*/} configure this for you, select Configure GPG from the main menu. Press enter to continue. " continue
     fi
