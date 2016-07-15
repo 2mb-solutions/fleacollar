@@ -129,7 +129,7 @@ initialize_directory()
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
         echo "set print=yes" >> "$muttHome/muttrc"
-        echo "set use_from=alias" >> "$muttHome/muttrc"
+        echo "set use_from=yes" >> "$muttHome/muttrc"
         echo "set imap_check_subscribed" >> "$muttHome/muttrc"
         echo "set sort_alias=alias" >> "$muttHome/muttrc"
         echo "set reverse_alias=yes" >> "$muttHome/muttrc"
