@@ -126,8 +126,9 @@ initialize_directory()
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
         echo "set print=yes" >> "$muttHome/muttrc"
-        echo "set sort_alias = alias" >> "$muttHome/muttrc"
-        echo "set reverse_alias = yes" >> "$muttHome/muttrc"
+        echo "set use_from=alias" >> "$muttHome/muttrc"
+        echo "set sort_alias=alias" >> "$muttHome/muttrc"
+        echo "set reverse_alias=yes" >> "$muttHome/muttrc"
         echo "set alias_file=${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
         echo "set mailcap_path=${muttHome/#$HOME/\~}/mailcap" >> "$muttHome/muttrc"
         echo "set header_cache=${muttHome/#$HOME/\~}/cache/headers" >> "$muttHome/muttrc"
@@ -182,17 +183,20 @@ add_email_address()
 {
     read -p "Please enter your email address: " emailAddress
     if ! [[ "$emailAddress" =~ .*@.*\..* ]]; then
-        read -p "this appears to be an invalid email address. Continue anyway? " continue
+        read -p "this appears to be an invalid email address. Continue anyway? (y/n) " continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
         fi
     fi
     if [ -f "$muttHome/$emailAddress" ]; then
-        read -p "This email address already exists. Overwrite the existing settings? " continue
+        read -p "This email address already exists. Overwrite the existing settings? (y/n) " continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
         fi
     fi
+    read -p "Enter your name as you want it to appear in emails. From: " realName
+    echo "set realname=\"$realName\"" > "$muttHome/$emailAddress"
+    echo "set from=\"$emailAddress\"" >> "$muttHome/$emailAddress"
     case "$emailAddress" in
         *gmail.com)
             configure_gmail "$emailAddress"
@@ -233,7 +237,7 @@ configure_gmail()
 {
     # This is just to create the base file with settings common to all gmail accounts
     # I decided to do these in functions so as to not have a truly giagantic case statement in the add email function
-    echo "unset imap_passive" > "$muttHome/$1"
+    echo "unset imap_passive" >> "$muttHome/$1"
 echo "unset record" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://${1%@*}@smtp.gmail.com:587/" >> "$muttHome/$1"
@@ -260,7 +264,7 @@ configure_hotmail()
 {
     # This is just to create the base file with settings common to all hotmail accounts
     # I decided to do these in functions so as to not have a truly giagantic case statement in the add email function
-    echo "unset imap_passive" > "$muttHome/$1"
+    echo "unset imap_passive" >> "$muttHome/$1"
 echo "unset record" >> "$muttHome/$1"
     echo "set from=$1" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
