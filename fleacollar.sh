@@ -87,6 +87,58 @@ initialize_directory()
         keyName="$(gpg --fingerprint $key | head -n 2 | tail -n 1 | rev | cut -d ' ' -f-2 | tr -d "[:space:]" | rev)"
         echo "set pgp_sign_as=$keyName" >> "$muttHome/gpg.rc"
     fi
+    # Create macro file
+    if ! [ -f "$muttHome/macros" ]; then
+        echo "macro index 'c' '<change-folder>?<change-dir><home>^K=<enter>'" > "$muttHome/macros"
+        echo "bind index \"^\" imap-fetch-mail\"" >> "$muttHome/macros"
+    fi
+    # Create basic muttrc
+    if ! [ -f "$muttHome/muttrc" ]; then
+        # Find desired editor
+        x=0
+        for i in\
+        emacs\
+        gedit\
+        leafpad\
+        mousepad\
+        nano\
+        pluma\
+        vi\
+        vim
+        do
+            unset editorPath
+            editorPath="$(command -v $i)"
+            if [ -n "$editorPath" ]; then
+                editors[$x]="$editorPath"
+                ((x++))
+            fi
+        done
+        echo "Select editor for email composition:"
+        select i in "${editors[@]##*/}" ; do
+            if [ -n "$i" ]; then
+                break
+            fi
+        done
+        echo "set editor=$i" > "$muttHome/muttrc"
+        echo "set text_flowed=yes" >> "$muttHome/muttrc"
+        # I need to figure out a way to detect and set the language for the next setting.
+        echo "set send_charset=us-ascii:utf-8" >> "$muttHome/muttrc"
+        echo "set sort=threads" >> "$muttHome/muttrc"
+        echo "set beep_new=yes" >> "$muttHome/muttrc"
+        echo "set print=yes" >> "$muttHome/muttrc"
+        echo "set sort_alias = alias" >> "$muttHome/muttrc"
+        echo "set reverse_alias = yes" >> "$muttHome/muttrc"
+        echo "set alias_file=${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
+        echo "set mailcap_path=${muttHome/#$HOME/\~}/mailcap" >> "$muttHome/muttrc"
+        echo "set header_cache=${muttHome/#$HOME/\~}/cache/headers" >> "$muttHome/muttrc"
+        echo "set message_cachedir=${muttHome/#$HOME/\~}/cache/bodies" >> "$muttHome/muttrc"
+        echo "set certificate_file=${muttHome/#$HOME/\~}/certificates" >> "$muttHome/muttrc"
+        echo "auto_view text/html" >> "$muttHome/muttrc"
+        echo "alternative_order text/plain text/html" >> "$muttHome/muttrc"
+        echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
+        echo "source ${muttHome/#$HOME/\~}/gpg.rc" >> "$muttHome/muttrc"
+        echo "source ${muttHome/#$HOME/\~}/macros" >> "$muttHome/muttrc"
+    fi
 }
 
 configure_gpg()
@@ -170,7 +222,10 @@ add_email_address()
     gpg -r $keyName -e "$passwordFile"
     mv "$passwordFile.gpg" "$muttHome/$emailAddress.gpg"
     shred -fuzn 10 "$passwordFile" 
-    echo "source \"gpg -d ${muttHome/$HOME/~}${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
+    echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
+    if ! grep "^folder-hook.*$emailAddress" "$muttHome/muttrc" ; then
+        echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
+    fi
     echo "Email address added, press enter to continue."
 }
 
