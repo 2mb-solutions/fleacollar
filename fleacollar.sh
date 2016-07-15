@@ -233,7 +233,7 @@ add_email_address()
     shred -fuzn 10 "$passwordFile" 
     echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
     if ! grep "^folder-hook.*$emailAddress" "$muttHome/muttrc" ; then
-        echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
+        echo -e "source ${muttHome/#$HOME/\~}/$emailAddress\nfolder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
     fi
     echo "Email address added, press enter to continue."
 }
