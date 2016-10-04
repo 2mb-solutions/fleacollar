@@ -209,6 +209,8 @@ add_email_address()
         *hotmail.com)
             configure_hotmail "$emailAddress"
         ;;
+        *)
+            configure_generic "$emailAddress"
     esac
     # Password encryption with gpg
     passOne=a
@@ -277,6 +279,35 @@ echo "set folder=imaps://$1@imap-mail.outlook.com/" >> "$muttHome/$1"
 echo "set ssl_force_tls=yes" >> "$muttHome/$1"
 echo "set mailboxes=+INBOX" >> "$muttHome/$1"
 echo "set postponed=+[hotmail]/Drafts" >> "$muttHome/$1"
+echo "set imap_keepalive=300" >> "$muttHome/$1"
+echo "set mail_check=300" >> "$muttHome/$1"
+echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
+    echo "source ~/${muttHome#/home/*/}/aliases" >> "$muttHome/$1"
+}
+
+configure_generric()
+{
+    # Break the email address into its components:
+    local userName="${1%%@*}"
+    local hostName="${1##*@}"
+    local imapUser
+    local smtpUrl
+    local extraSettings
+read -p "Enter imap user: " -e -i $1 imapUser
+read -p "Enter smtp URL: " -e -i smtp://smtp.${hostName}:587/ smtpUrl
+        read -p "Enter extra settings, one line at a time, just press enter when done: " extraSettings
+    while [ "$extraSettings" != "" ]; do
+        echo "$extraSettings" >> "$muttHome/$1"
+        read $extreSettings
+    done
+    echo "unset imap_passive" >> "$muttHome/$1"
+echo "unset record" >> "$muttHome/$1"
+    echo "set from=$1" >> "$muttHome/$1"
+echo "set imap_user=$imapUser" >> "$muttHome/$1"
+echo "set smtp_url=\"$smtpUrl" >> "$muttHome/$1"
+echo "set folder=imaps://$1/" >> "$muttHome/$1"
+echo "set mailboxes = +INBOX" >> "$muttHome/$1"
+echo "set postponed = +Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
 echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
