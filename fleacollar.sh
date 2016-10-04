@@ -232,9 +232,8 @@ add_email_address()
     mv "$passwordFile.gpg" "$muttHome/$emailAddress.gpg"
     shred -fuzn 10 "$passwordFile" 
     echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
-    if ! grep "^folder-hook.*$emailAddress" "$muttHome/muttrc" ; then
-        echo -e "source ${muttHome/#$HOME/\~}/$emailAddress\nfolder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
-    fi
+        echo "source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
+echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/$emailAddress"
     echo "Email address added, press enter to continue."
 }
 
@@ -247,8 +246,8 @@ echo "unset record" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://${1%@*}@smtp.gmail.com:587/" >> "$muttHome/$1"
 echo "set folder=imaps://${1%@*}@imap.gmail.com/" >> "$muttHome/$1"
-echo "mailboxes=+INBOX" >> "$muttHome/$1"
-echo "set postponed=+[Gmail]/Drafts" >> "$muttHome/$1"
+echo "mailboxes = +INBOX" >> "$muttHome/$1"
+echo "set postponed = +[Gmail]/Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
 echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
@@ -276,7 +275,7 @@ echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://$1@smtp-mail.outlook.com:587/" >> "$muttHome/$1"
 echo "set folder=imaps://$1@imap-mail.outlook.com/" >> "$muttHome/$1"
 echo "set ssl_force_tls=yes" >> "$muttHome/$1"
-echo "mailboxes=+INBOX" >> "$muttHome/$1"
+echo "set mailboxes=+INBOX" >> "$muttHome/$1"
 echo "set postponed=+[hotmail]/Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
@@ -284,12 +283,28 @@ echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
     echo "source ~/${muttHome#/home/*/}/aliases" >> "$muttHome/$1"
 }
 
+new_contact()
+{
+    read -p "Enter the contact name as it should appear in the to line of the email. To: " contactName
+    if [ -z "$contactName" ]; then
+        exit 0
+    fi
+    read -p "Enter the email address for $contactName: " contactEmail
+    if [ -z "$contactEmail" ]; then
+        exit 0
+    fi
+    if grep "$contactEmail" "$muttHome/aliases" &> /dev/null ; then
+        read "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact" continue
+    fi
+    contactAlias="${contactName,,%% *}"
+}
+
 # This is the main loop of the program
 # Call functions to be ran every time the script is ran.
 check_dependancies
 initialize_directory
 # Let's make a mainmenu variable to hold all the options for the select loop.
-mainmenu=('Add Email Address' 'Configure GPG' 'Exit')
+mainmenu=('Add Email Address' 'Configure GPG' 'New Contact' 'Exit')
 echo "Main menu:"
 select i in "${mainmenu[@]}" ; do
     functionName="${i,,}"
