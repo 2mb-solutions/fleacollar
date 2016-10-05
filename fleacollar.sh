@@ -290,9 +290,11 @@ configure_generic()
     # Break the email address into its components:
     local userName="${1%%@*}"
     local hostName="${1##*@}"
+    local imapHost
     local imapUser
     local smtpUrl
     local extraSettings
+read -p "Enter imap host: " -e -i imap://imap.$hostName imapHost
 read -p "Enter imap user: " -e -i $1 imapUser
 read -p "Enter smtp URL: " -e -i smtp://smtp.${hostName}:587/ smtpUrl
         read -p "Enter extra settings, one line at a time, just press enter when done: " extraSettings
@@ -303,6 +305,7 @@ read -p "Enter smtp URL: " -e -i smtp://smtp.${hostName}:587/ smtpUrl
     echo "unset imap_passive" >> "$muttHome/$1"
 echo "unset record" >> "$muttHome/$1"
     echo "set from=$1" >> "$muttHome/$1"
+echo "set imap_host=$imapHost" >> "$muttHome/$1"
 echo "set imap_user=$imapUser" >> "$muttHome/$1"
 echo "set smtp_url=\"$smtpUrl" >> "$muttHome/$1"
 echo "set folder=imaps://$1/" >> "$muttHome/$1"
