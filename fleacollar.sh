@@ -285,7 +285,7 @@ echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
     echo "source ~/${muttHome#/home/*/}/aliases" >> "$muttHome/$1"
 }
 
-configure_generric()
+configure_generic()
 {
     # Break the email address into its components:
     local userName="${1%%@*}"
