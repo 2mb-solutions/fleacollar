@@ -312,7 +312,7 @@ configure_generic()
 echo "unset record" >> "$muttHome/$1"
     echo "set from=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://$smtpUser@$smtpHost:$smtpPort/" >> "$muttHome/$1"
-echo "set folder=imaps://$imapHost/" >> "$muttHome/$1"
+echo "set folder=imaps://$imapUser@$imapHost:$imapPort/" >> "$muttHome/$1"
 echo "mailboxes = +INBOX" >> "$muttHome/$1"
 echo "set postponed = +Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
