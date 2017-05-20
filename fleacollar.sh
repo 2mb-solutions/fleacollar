@@ -234,7 +234,7 @@ add_email_address()
     mv "$passwordFile.gpg" "$muttHome/$emailAddress.gpg"
     shred -fuzn 10 "$passwordFile" 
     echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
-        echo "source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
+    add_keybinding
 echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/$emailAddress"
     echo "Email address added, press enter to continue."
 }
@@ -320,6 +320,19 @@ echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
 echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
     echo "source ~/${muttHome#/home/*/}/aliases" >> "$muttHome/$1"
+}
+
+add_keybinding()
+{
+# Here we search for previous keybinding
+local fNumber=1
+while : ; do
+grep "^bind.*index.*<F$fNumber>" $muttHome/muttrc || break # fNumber is now the currently open keybinding.
+((fNumber++)) # fNumber was taken, so increment it.
+done
+# Bind key FfNumber to the mail account.
+echo "bind generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
+echo "mail account  $emailAddress bound to F$fNum"
 }
 
 new_contact()
