@@ -126,6 +126,8 @@ initialize_directory()
         echo "set text_flowed=yes" >> "$muttHome/muttrc"
         # I need to figure out a way to detect and set the language for the next setting.
         echo "set send_charset=us-ascii:utf-8" >> "$muttHome/muttrc"
+        echo "set pager = 'builtin'" >> "$muttHome/muttrc"
+        echo "set pager_stop = 'yes'" >> "$muttHome/muttrc"
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
         echo "set print=yes" >> "$muttHome/muttrc"
@@ -134,10 +136,13 @@ initialize_directory()
         echo "set sort_alias=alias" >> "$muttHome/muttrc"
         echo "set reverse_alias=yes" >> "$muttHome/muttrc"
         echo "set alias_file=${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
+        echo "set history_file=${muttHome/#$HOME/\~}/history" >> "$muttHome/muttrc"
+        echo "set history=1024" >> "$muttHome/muttrc"
         echo "set mailcap_path=${muttHome/#$HOME/\~}/mailcap" >> "$muttHome/muttrc"
         echo "set header_cache=${muttHome/#$HOME/\~}/cache/headers" >> "$muttHome/muttrc"
         echo "set message_cachedir=${muttHome/#$HOME/\~}/cache/bodies" >> "$muttHome/muttrc"
         echo "set certificate_file=${muttHome/#$HOME/\~}/certificates" >> "$muttHome/muttrc"
+        echo "set markers=no" >> "$muttHome/muttrc"
         echo "auto_view text/html" >> "$muttHome/muttrc"
         echo "alternative_order text/plain text/html" >> "$muttHome/muttrc"
         echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
@@ -327,12 +332,18 @@ add_keybinding()
 # Here we search for previous keybinding
 local fNumber=1
 while : ; do
-grep "^bind.*index.*<F$fNumber>" $muttHome/muttrc || break # fNumber is now the currently open keybinding.
+grep "^bind.*index.*<F$fNumber>" $muttHome/muttrc &> /dev/null || break # fNumber is now the currently open keybinding.
 ((fNumber++)) # fNumber was taken, so increment it.
 done
 # Bind key FfNumber to the mail account.
 echo "bind generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
-echo "mail account  $emailAddress bound to F$fNum"
+echo "mail account  $emailAddress bound to F$fNumber."
+if ! grep "^source.*@.*\..*" "$muttHome/muttrc" &> /dev/null ; then
+read -p "Make $emailAddress the default account? (Y/N) " continue
+if [ "${continue^^}" = "Y" ]; then
+echo "source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
+fi
+fi
 }
 
 new_contact()
@@ -346,7 +357,7 @@ new_contact()
         exit 0
     fi
     if grep "$contactEmail" "$muttHome/aliases" &> /dev/null ; then
-        read "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact" continue
+        read -p "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact" continue
     fi
     contactAlias="${contactName,,%% *}"
 }
