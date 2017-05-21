@@ -201,6 +201,8 @@ add_email_address()
         read -p "This email address already exists. Overwrite the existing settings? (y/n) " continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
+        else
+            sed -i "/$emailAddress/d" "$muttHome/muttrc"
         fi
     fi
     read -p "Enter your name as you want it to appear in emails. From: " realName
@@ -253,6 +255,7 @@ echo "unset record" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://${1%@*}@smtp.gmail.com:587/" >> "$muttHome/$1"
 echo "set folder=imaps://${1%@*}@imap.gmail.com/" >> "$muttHome/$1"
+echo "set spoolfile = +INBOX" >> "$muttHome/$1"
 echo "mailboxes = +INBOX" >> "$muttHome/$1"
 echo "set postponed = +[Gmail]/Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
@@ -282,6 +285,7 @@ echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://$1@smtp-mail.outlook.com:587/" >> "$muttHome/$1"
 echo "set folder=imaps://$1@imap-mail.outlook.com/" >> "$muttHome/$1"
 echo "set ssl_force_tls=yes" >> "$muttHome/$1"
+echo "set spoolfile=+INBOX" >> "$muttHome/$1"
 echo "set mailboxes=+INBOX" >> "$muttHome/$1"
 echo "set postponed=+[hotmail]/Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
