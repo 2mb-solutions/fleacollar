@@ -341,7 +341,7 @@ grep "^bind.*index.*<F$fNumber>" $muttHome/muttrc &> /dev/null || break # fNumbe
 ((fNumber++)) # fNumber was taken, so increment it.
 done
 # Bind key FfNumber to the mail account.
-echo "bind generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
+echo "macro generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
 echo "mail account  $emailAddress bound to F$fNumber."
 if ! grep "^source.*@.*\..*" "$muttHome/muttrc" &> /dev/null ; then
 read -p "Make $emailAddress the default account? (Y/N) " continue
