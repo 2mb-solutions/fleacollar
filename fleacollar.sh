@@ -29,6 +29,9 @@ initialize_directory()
     if ! [ -d "$muttHome" ]; then
         mkdir -p "$muttHome"
     fi
+    if ! [ -f "$muttHome/aliases" ]; then
+        touch "$muttHome/aliases"
+    fi
     if ! [ -f "$muttHome/mailcap" ]; then
         # Find desired browser
         local x=0
@@ -280,13 +283,12 @@ configure_hotmail()
     # I decided to do these in functions so as to not have a truly giagantic case statement in the add email function
     echo "unset imap_passive" >> "$muttHome/$1"
 echo "unset record" >> "$muttHome/$1"
-    echo "set from=$1" >> "$muttHome/$1"
 echo "set imap_user=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://$1@smtp-mail.outlook.com:587/" >> "$muttHome/$1"
 echo "set folder=imaps://$1@imap-mail.outlook.com/" >> "$muttHome/$1"
 echo "set ssl_force_tls=yes" >> "$muttHome/$1"
 echo "set spoolfile=+INBOX" >> "$muttHome/$1"
-echo "set mailboxes=+INBOX" >> "$muttHome/$1"
+echo "mailboxes = +INBOX" >> "$muttHome/$1"
 echo "set postponed=+[hotmail]/Drafts" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
@@ -319,7 +321,6 @@ configure_generic()
     done
     echo "unset imap_passive" >> "$muttHome/$1"
 echo "unset record" >> "$muttHome/$1"
-    echo "set from=$1" >> "$muttHome/$1"
 echo "set smtp_url=\"smtp://$smtpUser@$smtpHost:$smtpPort/" >> "$muttHome/$1"
 echo "set folder=imaps://$imapUser@$imapHost:$imapPort/" >> "$muttHome/$1"
 echo "mailboxes = +INBOX" >> "$muttHome/$1"
