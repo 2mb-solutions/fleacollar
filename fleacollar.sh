@@ -134,7 +134,6 @@ initialize_directory()
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
         echo "set print=yes" >> "$muttHome/muttrc"
-        echo "set use_from=yes" >> "$muttHome/muttrc"
         echo "set imap_check_subscribed" >> "$muttHome/muttrc"
         echo "set sort_alias=alias" >> "$muttHome/muttrc"
         echo "set reverse_alias=yes" >> "$muttHome/muttrc"
@@ -211,6 +210,7 @@ add_email_address()
     read -p "Enter your name as you want it to appear in emails. From: " realName
     echo "set realname=\"$realName\"" > "$muttHome/$emailAddress"
     echo "set from=\"$emailAddress\"" >> "$muttHome/$emailAddress"
+    echo "set use_from = \"yes\"" >> "$muttHome/$emailAddress"
     echo "set hostname=${emailAddress##*@}" >> "$muttHome/$emailAddress"
     case "$emailAddress" in
         *gmail.com)
