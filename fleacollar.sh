@@ -27,7 +27,7 @@ check_dependancies()
 initialize_directory()
 {
     if ! [ -d "$muttHome" ]; then
-        mkdir -p "$muttHome"
+        mkdir -p "${muttHome}/cache/bodies"
     fi
     if ! [ -f "$muttHome/aliases" ]; then
         touch "$muttHome/aliases"
