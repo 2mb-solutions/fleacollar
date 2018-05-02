@@ -7,7 +7,7 @@
 # Released under the terms of  the WTFPL: http://wtfpl.net
 
 # Variables
-muttHome=~/.muttest
+muttHome=~/.mutt
 
 # Functions
 check_dependancies()
