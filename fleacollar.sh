@@ -44,7 +44,8 @@ initialize_directory()
         links\
         lynx\
         midori\
-        seamonkey
+        seamonkey\
+        w3m
         do
             unset browserPath
             browserPath="$(command -v $i)"
@@ -64,7 +65,7 @@ initialize_directory()
             "elinks")
                 echo "text/html; $browserPath -dump -force-html -dump-charset utf-8 -no-numbering %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
             ;;
-            "lynx")
+            "lynx|w3m")
                 echo "text/html; $browserPath -dump %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
             ;;
             *)
