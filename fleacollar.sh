@@ -3,8 +3,14 @@
 # This script has the lofty goal of becoming a full configuration utility for mutt.
 # Written by Storm Dragon: https://social.stormdragon.tk/storm
 # Written by Michael Taboada: https://2mb.social/mwtab
+# Contributions by Kyle: https://kyle.tk
 # This is a 2MB Solutions project: https://2mb.solutions
 # Released under the terms of  the WTFPL: http://wtfpl.net
+
+# Setup for gettext localization
+export TEXTDOMAIN=fleacollar.sh
+export TEXTDOMAINDIR=/usr/share/locale
+. gettext.sh
 
 # Variables
 muttHome=~/.mutt
@@ -15,12 +21,12 @@ check_dependancies()
     local dep
     for dep in gpg mutt ; do
        if ! command -v $dep &> /dev/null ; then
-            echo "$dep is not installed. Please install $dep and run this script again."
+            echo "$(eval_gettext "\$dep is not installed. Please install $dep and run this script again.")"
             exit 1
          fi
     done
     if ! [ -d ~/.gnupg ]; then
-        read -p "No configuration for GPG was found. to have ${0##*/} configure this for you, select Configure GPG from the main menu. Press enter to continue. " continue
+        read -p "$(eval_gettext "No configuration for GPG was found. to have \${0##*/} configure this for you, select Configure GPG from the main menu. Press enter to continue. ")" continue
     fi
 }
 
@@ -54,7 +60,7 @@ initialize_directory()
                 ((x++))
             fi
         done
-        echo "Select browser for viewing html email:"
+        echo "$(gettext "Select browser for viewing html email:")"
         select i in "${browsers[@]##*/}" ; do
             browserPath="$i"
             if [ -n "$browserPath" ]; then
@@ -82,10 +88,10 @@ initialize_directory()
         echo "set pgp_replyencrypt=yes" >> "$muttHome/gpg.rc"
         echo "set pgp_timeout=1800" >> "$muttHome/gpg.rc"
         if ! gpg --list-secret-keys | grep '.*@.*' &> /dev/null ; then
-            read -p "No gpg key was found. Press enter to generate one now, or control+c if you would like to do so manually. Note, the default values are usually what you want." continue
+            read -p "$(gettext "No gpg key was found. Press enter to generate one now, or control+c if you would like to do so manually. Note, the default values are usually what you want.")" continue
             gpg --gen-key
         fi
-        echo "Select the key you want to use for encryption/signing:"
+        echo "$(gettext "Select the key you want to use for encryption/signing:")"
         select key in $(gpg --list-secret-keys | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1) ; do
             if [ -n "$key" ]; then
                 break
@@ -120,7 +126,7 @@ initialize_directory()
                 ((x++))
             fi
         done
-        echo "Select editor for email composition:"
+        echo "$gettext "Select editor for email composition:")"
         select i in "${editors[@]##*/}" ; do
             if [ -n "$i" ]; then
                 break
@@ -165,7 +171,7 @@ if ! [ -d ~/.gnupg/ ]; then
         mkdir -p ~/.gnupg
     fi
     if [ -f ~/.gnupg/gpg.conf ]; then
-        read -p "This will overwrite your existing ~/.gnupg/gpg.conf file. Press enter to continue or control+c to abort. " continue
+        read -p "$(gettext "This will overwrite your existing ~/.gnupg/gpg.conf file. Press enter to continue or control+c to abort. ")" continue
     fi
     cat << EOF > ~/.gnupg/gpg.conf
 charset utf-8
@@ -182,7 +188,7 @@ keyserver pgp.zdv.uni-mainz.de
 keyserver-options auto-key-retrieve
 EOF
     if [ -f ~/.gnupg/gpg-agent.conf ]; then
-        read -p "This will overwrite your existing ~/.gnupg/gpg-agent.conf file. Press enter to continue or control+c to abort. " continue
+        read -p "$(gettext "This will overwrite your existing ~/.gnupg/gpg-agent.conf file. Press enter to continue or control+c to abort. ")" continue
     fi
     cat << EOF > ~/.gnupg/gpg-agent.conf
 default-cache-ttl 300
@@ -193,22 +199,22 @@ EOF
 
 add_email_address()
 {
-    read -p "Please enter your email address: " emailAddress
+    read -p "$(gettext "Please enter your email address: ")" emailAddress
     if ! [[ "$emailAddress" =~ .*@.*\..* ]]; then
-        read -p "this appears to be an invalid email address. Continue anyway? (y/n) " continue
+        read -p "$(gettext "this appears to be an invalid email address. Continue anyway? (y/n) ")" continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
         fi
     fi
     if [ -f "$muttHome/$emailAddress" ]; then
-        read -p "This email address already exists. Overwrite the existing settings? (y/n) " continue
+        read -p "$gettext "This email address already exists. Overwrite the existing settings? (y/n) ")" continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
         else
             sed -i "/$emailAddress/d" "$muttHome/muttrc"
         fi
     fi
-    read -p "Enter your name as you want it to appear in emails. From: " realName
+    read -p "$(gettext "Enter your name as you want it to appear in emails. From: ")" realName
     echo "set realname=\"$realName\"" > "$muttHome/$emailAddress"
     echo "set from=\"$emailAddress\"" >> "$muttHome/$emailAddress"
     echo "set use_from = \"yes\"" >> "$muttHome/$emailAddress"
@@ -227,12 +233,12 @@ add_email_address()
     passOne=a
     passTwo=b
     until [ "$passOne" = "$passTwo" ]; do
-        read -sp "Please enter the password for $emailAddress: " passOne
+        read -sp "$(gettext"Please enter the password for $emailAddress: ")" passOne
         echo
-        read -sp "Please enter the password again: " passTwo
+        read -sp "$(gettext"Please enter the password again: ")" passTwo
         echo
         if [ "$passOne" != "$passTwo" ]; then
-            echo "The passwords do not match."
+            echo "$(gettext "The passwords do not match.")"
         fi
     done
     keyName="$(grep 'pgp_sign_as=' "$muttHome/gpg.rc" | cut -d '=' -f2)"
@@ -247,7 +253,7 @@ add_email_address()
     echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
     add_keybinding
 echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress'" >> "$muttHome/$emailAddress"
-    echo "Email address added, press enter to continue."
+    echo "$(gettext "Email address added, press enter to continue.")"
 }
 
 configure_gmail()
@@ -268,7 +274,7 @@ echo "set mail_check=300" >> "$muttHome/$1"
 echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
     unset continue
     if command -v goobook &> /dev/null ; then
-        read -p "Goobook is installed, would you like to use it as your addressbook for the account $1? " continue
+        read -p "$(eval_gettext "Goobook is installed, would you like to use it as your addressbook for the account \$1? ")" continue
     fi
     if [ "${continue^}" = "Y" ]; then
         echo "set query_command=\"goobook query %s\"" >> "$muttHome/$1"
@@ -311,13 +317,13 @@ configure_generic()
     local smtpUser
     local smtpPort
     local extraSettings
-    read -p "Enter imap host: " -e -i imap.$hostName imapHost
-    read -p "Enter imap user: " -e -i $1 imapUser
-    read -p "Enter imap port: " -e -i 993 imapPort
-    read -p "Enter smtp host: " -e -i smtp.$hostName smtpHost
-    read -p "Enter smtp user: " -e -i $userName smtpUser
-    read -p "Enter smtp port: " -e -i 587 smtpPort
-    read -p "Enter extra settings, one line at a time, just press enter when done: " extraSettings
+    read -p "$(gettext "Enter imap host: ")" -e -i imap.$hostName imapHost
+    read -p "$(gettext "Enter imap user: ")" -e -i $1 imapUser
+    read -p "$(gettext "Enter imap port: ")" -e -i 993 imapPort
+    read -p "$(gettext "Enter smtp host: ")" -e -i smtp.$hostName smtpHost
+    read -p "$(gettext "Enter smtp user: ")" -e -i $userName smtpUser
+    read -p "$(gettext "Enter smtp port: ")" -e -i 587 smtpPort
+    read -p "$(gettext "Enter extra settings, one line at a time, just press enter when done: ")" extraSettings
     while [ "$extraSettings" != "" ]; do
         echo "$extraSettings" >> "$muttHome/$1"
         read $extreSettings
@@ -347,7 +353,7 @@ done
 echo "macro generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
 echo "mail account  $emailAddress bound to F$fNumber."
 if ! grep "^source.*@.*\..*" "$muttHome/muttrc" &> /dev/null ; then
-read -p "Make $emailAddress the default account? (Y/N) " continue
+read -p "$(eval_gettext "Make \$emailAddress the default account? (Y/N) ")" continue
 if [ "${continue^^}" = "Y" ]; then
 echo "source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
 fi
@@ -356,16 +362,16 @@ fi
 
 new_contact()
 {
-    read -p "Enter the contact name as it should appear in the to line of the email. To: " contactName
+    read -p "$(gettext "Enter the contact name as it should appear in the to line of the email. To: ")" contactName
     if [ -z "$contactName" ]; then
         exit 0
     fi
-    read -p "Enter the email address for $contactName: " contactEmail
+    read -p "$(gettext "Enter the email address for $contactName: ")" contactEmail
     if [ -z "$contactEmail" ]; then
         exit 0
     fi
     if grep "$contactEmail" "$muttHome/aliases" &> /dev/null ; then
-        read -p "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact" continue
+        read -p "$(gettext "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact")" continue
     fi
     contactAlias="${contactName,,%% *}"
 }
@@ -375,8 +381,8 @@ new_contact()
 check_dependancies
 initialize_directory
 # Let's make a mainmenu variable to hold all the options for the select loop.
-mainmenu=('Add Email Address' 'Configure GPG' 'New Contact' 'Exit')
-echo "Main menu:"
+mainmenu=("$(gettext "Add Email Address")" "$(gettext "Configure GPG")" "$(gettext "New Contact")" "$(gettext "Exit")")
+echo "$(gettext "Main menu:")"
 select i in "${mainmenu[@]}" ; do
     functionName="${i,,}"
     functionName="${functionName// /_}"
