@@ -26,7 +26,8 @@ check_dependancies()
          fi
     done
     if ! [ -d ~/.gnupg ]; then
-        read -p "$(eval_gettext "No configuration for GPG was found. to have \${0##*/} configure this for you, select Configure GPG from the main menu. Press enter to continue. ")" continue
+        read -p "$(eval_gettext "No configuration for GPG was found. To have \${0##*/} configure this for you press enter. If you would like to configure GPG manually, press control+c.") " continue
+        configure_gpg
     fi
 }
 
@@ -88,8 +89,8 @@ initialize_directory()
         echo "set pgp_replyencrypt=yes" >> "$muttHome/gpg.rc"
         echo "set pgp_timeout=1800" >> "$muttHome/gpg.rc"
         if ! gpg --list-secret-keys | grep '.*@.*' &> /dev/null ; then
-            read -p "$(gettext "No gpg key was found. Press enter to generate one now, or control+c if you would like to do so manually. Note, the default values are usually what you want.")" continue
-            gpg --gen-key
+            read -p "$(gettext "No gpg key was found. Press enter to generate one now, or control+c if you would like to do so manually.") " continue
+            gpg --quick-gen-key
         fi
         echo "$(gettext "Select the key you want to use for encryption/signing:")"
         select key in $(gpg --list-secret-keys | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1) ; do
@@ -233,9 +234,9 @@ add_email_address()
     passOne=a
     passTwo=b
     until [ "$passOne" = "$passTwo" ]; do
-        read -sp "$(gettext"Please enter the password for $emailAddress: ")" passOne
+        read -sp "$(gettext "Please enter the password for $emailAddress:") " passOne
         echo
-        read -sp "$(gettext"Please enter the password again: ")" passTwo
+        read -sp "$(gettext "Please enter the password again: ")" passTwo
         echo
         if [ "$passOne" != "$passTwo" ]; then
             echo "$(gettext "The passwords do not match.")"
