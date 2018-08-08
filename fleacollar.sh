@@ -207,7 +207,7 @@ add_email_address()
         fi
     fi
     if [ -f "$muttHome/$emailAddress" ]; then
-        read -p "$gettext "This email address already exists. Overwrite the existing settings? (y/n) ")" continue
+        read -p "$(gettext "This email address already exists. Overwrite the existing settings? (y/n) ")" continue
         if [ "${continue^}" != "Y" ]; then
             exit 0
         else
