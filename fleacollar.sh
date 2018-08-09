@@ -94,7 +94,7 @@ initialize_directory()
         fi
         echo "$(gettext "Select the key you want to use for encryption/signing:")"
         select key in $(gpg --list-secret-keys | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1) ; do
-            if [ -n "$key" ]; then
+            if [[ -n "$key" ]]; then
                 break
             fi
         done
@@ -242,8 +242,7 @@ add_email_address()
             echo "$(gettext "The passwords do not match.")"
         fi
     done
-    keyName="$(grep 'pgp_sign_as=' "$muttHome/gpg.rc" | cut -d '=' -f2)"
-    keyName="$(gpg --list-secret-keys $keyName | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1)"
+    keyName="$(gpg --list-secret-keys --keyid-format short | grep -B1 ^uid | head -n1 | rev | cut -c -8 | rev)"
     # I wish it were possible to just echo the password through gpg and not have an unencrypted file at all.
     # but either it's not, or I just can't figure out how to do it. So we'll use mktemp and shred.
     passwordFile="$(mktemp)"
