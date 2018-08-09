@@ -98,7 +98,7 @@ initialize_directory()
                 break
             fi
         done
-        keyName="$(gpg --fingerprint $key | head -n 2 | tail -n 1 | rev | cut -d ' ' -f-2 | tr -d "[:space:]" | rev)"
+        keyName="$(gpg --list-secret-keys --keyid-format short | grep -B1 ^uid | head -n1 | rev | cut -c -8 | rev)"
         echo "set pgp_sign_as=$keyName" >> "$muttHome/gpg.rc"
     fi
     # Create macro file
