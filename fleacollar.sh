@@ -88,9 +88,9 @@ initialize_directory()
         echo "set crypt_autosign=yes" >> "$muttHome/gpg.rc"
         echo "set pgp_replyencrypt=yes" >> "$muttHome/gpg.rc"
         echo "set pgp_timeout=1800" >> "$muttHome/gpg.rc"
-        if ! gpg --list-secret-keys | grep '.*@.*' &> /dev/null ; then
-            read -p "$(gettext "No gpg key was found. Press enter to generate one now, or control+c if you would like to do so manually.") " continue
-            gpg --quick-gen-key
+        if [[ $(gpg --list-secret-keys | wc -l) -eq 0 ]]; then
+            read -p "$(gettext "No gpg key was found. Type your name and press entr to quickly generate a PGP key.control+c if you would like to create it manually.") " continue
+            gpg --quick-gen-key "${continue:-${USER}}"
         fi
         echo "$(gettext "Select the key you want to use for encryption/signing:")"
         select key in $(gpg --list-secret-keys | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1) ; do
@@ -169,7 +169,7 @@ configure_gpg()
     fi
     # Make sure the configuration directory exists
 if ! [ -d ~/.gnupg/ ]; then
-        mkdir -p ~/.gnupg
+        gpg --list-secret-keys &> /dev/null
     fi
     if [ -f ~/.gnupg/gpg.conf ]; then
         read -p "$(gettext "This will overwrite your existing ~/.gnupg/gpg.conf file. Press enter to continue or control+c to abort. ")" continue
