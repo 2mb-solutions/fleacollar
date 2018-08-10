@@ -91,12 +91,10 @@ initialize_directory()
             fi
         done
         echo "$(gettext "Select browser for viewing html email:")"
-        select i in "${browsers[@]##*/}" ; do
-            browserPath="$i"
-            if [ -n "$browserPath" ]; then
-                break
-            fi
-        done
+        browserPath="$(menulist $(for i in "${browsers[@]##*/}" ; do echo "$i";echo "$i";done))"
+        if [ -z "$browserPath" ]; then
+            exit 0
+        fi
         case "${browserPath##*/}" in
             "elinks")
                 echo "text/html; $browserPath -dump -force-html -dump-charset utf-8 -no-numbering %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
@@ -157,11 +155,10 @@ initialize_directory()
             fi
         done
         echo "$gettext "Select editor for email composition:")"
-        select i in "${editors[@]##*/}" ; do
-            if [ -n "$i" ]; then
-                break
-            fi
-        done
+        i="$(menulist $(for i in "${editors[@]##*/}" ; do echo "$i";echo "$i";done))"
+        if [ -z "$i" ]; then
+            exit 0
+        fi
         echo "set editor=$i" > "$muttHome/muttrc"
         echo "set text_flowed=yes" >> "$muttHome/muttrc"
         # I need to figure out a way to detect and set the language for the next setting.
@@ -416,8 +413,9 @@ check_dependancies
 initialize_directory
 # Let's make a mainmenu variable to hold all the options for the select loop.
 mainmenu=("$(gettext "Add Email Address")" "$(gettext "Configure GPG")" "$(gettext "New Contact")" "$(gettext "Exit")")
-echo "$(gettext "Main menu:")"
-select i in "${mainmenu[@]}" ; do
+while : ; do
+i="$(IFS=$'\n';menulist $(for i in "${mainmenu[@]}" ; do echo "$i";echo "$i";done))"
+    [[ -z "$i" ]] && exit 0
     functionName="${i,,}"
     functionName="${functionName// /_}"
     functionName="${functionName/exit/exit 0}"
