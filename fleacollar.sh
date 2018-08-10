@@ -46,6 +46,20 @@ menulist() {
     IFS="$ifs"
 }
 
+yesno() {
+    # Returns: Yes or No
+    # Args: Question to user.
+    # Called  in if $(yesno) == "Yes"
+    # Or variable=$(yesno)
+    dialog --backtitle "$(gettext "Press 'Enter' for \"yes\" or 'Escape' for
+\"no\".")" --yesno "$*" 0 0 --stdout
+    if [[ $? -eq 0 ]]; then
+        echo "Yes"
+    else
+        echo "No"
+    fi
+}
+ 
 initialize_directory()
 {
     if ! [ -d "$muttHome" ]; then
@@ -243,7 +257,12 @@ add_email_address()
             configure_hotmail "$emailAddress"
         ;;
         *)
-            configure_generic "$emailAddress"
+            continue="$(yesno "$(gettext "Is this a gmail account?")")"
+            if [[ "$continue" == "Yes" ]]; then
+                configure_gmail "$emailAddress"
+            else
+                configure_generic "$emailAddress"
+            fi
     esac
     # Password encryption with gpg
     passOne=a
