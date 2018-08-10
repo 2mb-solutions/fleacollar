@@ -361,7 +361,7 @@ add_keybinding()
 # Here we search for previous keybinding
 local fNumber=1
 while : ; do
-grep "^bind.*index.*<F$fNumber>" $muttHome/muttrc &> /dev/null || break # fNumber is now the currently open keybinding.
+grep "^[[:space:]m]acro.*index.*<F$fNumber>.*" $muttHome/muttrc &> /dev/null || break # fNumber is now the currently open keybinding.
 ((fNumber++)) # fNumber was taken, so increment it.
 done
 # Bind key FfNumber to the mail account.
