@@ -12,6 +12,9 @@ export TEXTDOMAIN=fleacollar.sh
 export TEXTDOMAINDIR=/usr/share/locale
 . gettext.sh
 
+# Settings to improve accessibility of dialog.
+export DIALOGOPTS='--insecure --no-lines --visit-items'
+
 # Variables
 muttHome=~/.mutt
 
@@ -29,6 +32,18 @@ check_dependancies()
         read -p "$(eval_gettext "No configuration for GPG was found. To have \${0##*/} configure this for you press enter. If you would like to configure GPG manually, press control+c.") " continue
         configure_gpg
     fi
+}
+
+menulist() {
+    # Args: minimum group 2, multiples of 2, "tag" "choice"
+    # returns: selected tag
+    local menuList
+    ifs="$IFS"
+    IFS=$'\n'
+    dialog --backtitle "$(gettext "Use the up and down arrow keys to find the option you want, then press enter to select it.")" \
+        --no-tags \
+        --menu "$(gettext "Please select one")" 0 0 0 $@ --stdout
+    IFS="$ifs"
 }
 
 initialize_directory()
