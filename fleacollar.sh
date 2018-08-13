@@ -119,7 +119,7 @@ initialize_directory()
             read -p "$(gettext "No gpg key was found. Type your name and press entr to quickly generate a PGP key.control+c if you would like to create it manually.") " continue
             gpg --quick-gen-key "${continue:-${USER}}"
         fi
-        echo "$(gettext "Select the key you want to use for encryption/signing:")"
+        PS3="$(gettext "Select the key you want to use for encryption/signing:")"
         select key in $(gpg --list-secret-keys | grep '.*@.*' | cut -d '<' -f2 | cut -d '>' -f1) ; do
             if [[ -n "$key" ]]; then
                 break
