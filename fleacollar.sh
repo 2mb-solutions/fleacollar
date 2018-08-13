@@ -46,6 +46,20 @@ menulist() {
     IFS="$ifs"
 }
 
+msgbox() {
+# Returns: None
+# Shows the provided message on the screen with an ok button.
+dialog --msgbox "$*" 0 0
+} 
+
+passwordbox() {
+    # Returns: text entered by the user
+    # Args 1, Instructions for box.
+    # args: 2 initial text (optional)
+    dialog --backtitle "$(gettext "Enter text and press enter.")" \
+        --passwordbox "$1" 0 0 "$2" --stdout
+}
+ 
 yesno() {
     # Returns: Yes or No
     # Args: Question to user.
@@ -265,10 +279,8 @@ add_email_address()
     passOne=a
     passTwo=b
     until [ "$passOne" = "$passTwo" ]; do
-        read -sp "$(gettext "Please enter the password for $emailAddress:") " passOne
-        echo
-        read -sp "$(gettext "Please enter the password again: ")" passTwo
-        echo
+        passOne="$(passwordbox "$(gettext "Please enter the password for $emailAddress:")")"
+        passTwo="$(passwordbox "$(gettext "Please enter the password again: ")")"
         if [ "$passOne" != "$passTwo" ]; then
             echo "$(gettext "The passwords do not match.")"
         fi
@@ -284,7 +296,7 @@ add_email_address()
     echo "source \"gpg -d ${muttHome/#$HOME/\~}/${emailAddress}.gpg|\"" >> "$muttHome/$emailAddress"
     add_keybinding
 echo "folder-hook *$emailAddress/ 'source ${muttHome/#$HOME/\~}/$emailAddress'" >> "$muttHome/$emailAddress"
-    echo "$(gettext "Email address added, press enter to continue.")"
+    msgbox "$(gettext "Email address added, press enter to continue.")"
 }
 
 configure_gmail()
