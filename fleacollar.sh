@@ -34,6 +34,14 @@ check_dependancies()
     fi
 }
 
+inputbox() {
+    # Returns: text entered by the user
+    # Args 1, Instructions for box.
+    # args: 2 initial text (optional)
+    dialog --backtitle "$(gettext "Enter text and press enter.")" \
+        --inputbox "$1" 0 0 "$2" --stdout
+}
+ 
 menulist() {
     # Args: minimum group 2, multiples of 2, "tag" "choice"
     # returns: selected tag
@@ -197,6 +205,7 @@ initialize_directory()
         echo "alternative_order text/plain text/html" >> "$muttHome/muttrc"
         echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/gpg.rc" >> "$muttHome/muttrc"
+        echo "source ${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/macros" >> "$muttHome/muttrc"
     fi
 }
@@ -405,18 +414,22 @@ fi
 
 new_contact()
 {
-    read -p "$(gettext "Enter the contact name as it should appear in the to line of the email. To: ")" contactName
+    contactName="$(inputbox "$(gettext "Enter the contact's first and last name..")")"
     if [ -z "$contactName" ]; then
         exit 0
     fi
-    read -p "$(gettext "Enter the email address for $contactName: ")" contactEmail
+    contactEmail="$(inputbox "$(gettext "Enter the email address for") $contactName")"
     if [ -z "$contactEmail" ]; then
         exit 0
     fi
-    if grep "$contactEmail" "$muttHome/aliases" &> /dev/null ; then
-        read -p "$(gettext "This email address already exists in your contacts. Press control+c to keep the current settings or enter to continue and replace the existing contact")" continue
+    contactAlias="${contactName,,}"
+    contactAlias="${contactAlias// /-}"
+    if grep "<$contactEmail>\| $contactAlias " "$muttHome/aliases" &> /dev/null ; then
+        [[ "$(yesno "$(gettext "This email address already exists in your contacts. Continue anyway?")")" != "Yes" ]] && exit 0
     fi
-    contactAlias="${contactName,,%% *}"
+    echo "alias $contactAlias $contactName <$contactEmail>" >> "$muttHome/aliases"
+    sort "$muttHome/aliases" -o "$muttHome/aliases"
+    msgbox "$contactName $(gettext "added to your address book")."
 }
 
 # This is the main loop of the program
@@ -427,7 +440,7 @@ initialize_directory
 mainmenu=("$(gettext "Add Email Address")" "$(gettext "Configure GPG")" "$(gettext "New Contact")" "$(gettext "Exit")")
 while : ; do
 i="$(IFS=$'\n';menulist $(for i in "${mainmenu[@]}" ; do echo "$i";echo "$i";done))"
-    [[ -z "$i" ]] && exit 0
+    [[ -z "$i" ]] && continue
     functionName="${i,,}"
     functionName="${functionName// /_}"
     functionName="${functionName/exit/exit 0}"
