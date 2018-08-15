@@ -427,7 +427,7 @@ new_contact()
         [[ "$(yesno "$(gettext "This email address already exists in your contacts. Continue anyway?")")" != "Yes" ]] && exit 0
     fi
     echo "alias $contactAlias $contactName <$contactEmail>" >> "$muttHome/aliases"
-    sort "$muttHome/aliases" -o "$muttHome/aliases"
+    sort -u "$muttHome/aliases" -o "$muttHome/aliases"
     msgbox "$contactName $(gettext "added to your address book")."
 }
 
