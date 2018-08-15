@@ -194,6 +194,7 @@ initialize_directory()
         echo "set sort_alias=alias" >> "$muttHome/muttrc"
         echo "set reverse_alias=yes" >> "$muttHome/muttrc"
         echo "set alias_file=${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
+        echo "source ${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
         echo "set history_file=${muttHome/#$HOME/\~}/history" >> "$muttHome/muttrc"
         echo "set history=1024" >> "$muttHome/muttrc"
         echo "set mailcap_path=${muttHome/#$HOME/\~}/mailcap" >> "$muttHome/muttrc"
@@ -205,7 +206,6 @@ initialize_directory()
         echo "alternative_order text/plain text/html" >> "$muttHome/muttrc"
         echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/gpg.rc" >> "$muttHome/muttrc"
-        echo "source ${muttHome/#$HOME/\~}/aliases" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/macros" >> "$muttHome/muttrc"
     fi
 }
@@ -323,7 +323,6 @@ echo "set postponed = +[Gmail]/Drafts" >> "$muttHome/$1"
 echo "set record=+[Gmail]/Sent" >> "$muttHome/$1"
 echo "set imap_keepalive=300" >> "$muttHome/$1"
 echo "set mail_check=300" >> "$muttHome/$1"
-echo "bind editor <Tab> complete-query" >> "$muttHome/$1"
     unset continue
     if command -v goobook &> /dev/null ; then
         read -p "$(eval_gettext "Goobook is installed, would you like to use it as your addressbook for the account \$1? ")" continue
@@ -405,8 +404,8 @@ done
 echo "macro generic,index <F$fNumber> '<sync-mailbox><enter-command>source ${muttHome/#$HOME/\~}/$emailAddress<enter><change-folder>!<enter>'" >> "$muttHome/muttrc"
 echo "mail account  $emailAddress bound to F$fNumber."
 if ! grep "^source.*@.*\..*" "$muttHome/muttrc" &> /dev/null ; then
-read -p "$(eval_gettext "Make \$emailAddress the default account? (Y/N) ")" continue
-if [ "${continue^^}" = "Y" ]; then
+continue="$(yesno "$(eval_gettext "Make \$emailAddress the default account?")")"
+if [ "$continue" = "Yes" ]; then
 echo "source ${muttHome/#$HOME/\~}/$emailAddress" >> "$muttHome/muttrc"
 fi
 fi
