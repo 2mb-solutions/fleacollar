@@ -122,7 +122,7 @@ initialize_directory()
                 echo "text/html; $browserPath %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
             ;;
             "lynx|w3m")
-                echo "text/html; $browserPath -I %{charset} -T text/html %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
+                echo "text/html; $browserPath -I %{charset} -T text/html %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
             ;;
             *)
                 echo "text/html; $browserPath %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
