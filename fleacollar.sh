@@ -119,17 +119,20 @@ initialize_directory()
         fi
         case "${browserPath##*/}" in
             "elinks")
-                echo "text/html; $browserPath -dump -force-html -dump-charset utf-8 -no-numbering %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
+                echo "text/html; $browserPath %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
             ;;
             "lynx|w3m")
-                echo "text/html; $browserPath -dump %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
+                echo "text/html; $browserPath -I %{charset} -T text/html %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
             ;;
             *)
-                echo "text/html; $browserPath %s; nametemplate=%s.html; copiousoutput" > "$muttHome/mailcap"
+                echo "text/html; $browserPath %s; nametemplate=%s.html; needsterminal" > "$muttHome/mailcap"
         esac
-        if command -v antiword &> /dev/null ; then
-            echo "application/msword; $(command -v antiword) %s; copiousoutput" >> "$muttHome/mailcap"
-        fi
+            echo 'audio/*; mpv --quiet %s; needsterminal' >> "$muttHome/mailcap"
+            echo 'application/msword; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
+            echo 'application/rtf; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
+            echo 'application/pdf; pdftotext %s -; copiousoutput' >> "$muttHome/mailcap"
+            echo 'video/*; mpv --quiet %s; test=test -n "$DISPLAY"; needsterminal' >> "$muttHome/mailcap"
+            echo 'video/*; mpv --quiet --no-video %s; needsterminal' >> "$muttHome/mailcap"
     fi
     if ! [ -f "$muttHome/gpg.rc" ]; then
         cp "/usr/share/doc/mutt/samples/gpg.rc" "$muttHome/"
@@ -185,7 +188,11 @@ initialize_directory()
         echo "set text_flowed=yes" >> "$muttHome/muttrc"
         # I need to figure out a way to detect and set the language for the next setting.
         echo "set send_charset=us-ascii:utf-8" >> "$muttHome/muttrc"
-        echo "set pager = 'builtin'" >> "$muttHome/muttrc"
+        if command -v w3m &> /dev/null ; then
+            echo "set pager = 'w3m'" >> "$muttHome/muttrc"
+        else
+            echo "set pager = 'builtin'" >> "$muttHome/muttrc"
+        fi
         echo "set pager_stop = 'yes'" >> "$muttHome/muttrc"
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
@@ -203,7 +210,7 @@ initialize_directory()
         echo "set certificate_file=${muttHome/#$HOME/\~}/certificates" >> "$muttHome/muttrc"
         echo "set markers=no" >> "$muttHome/muttrc"
         echo "auto_view text/html" >> "$muttHome/muttrc"
-        echo "alternative_order text/plain text/html" >> "$muttHome/muttrc"
+        echo "alternative_order text/plain text/enriched text/html" >> "$muttHome/muttrc"
         echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/gpg.rc" >> "$muttHome/muttrc"
         echo "source ${muttHome/#$HOME/\~}/macros" >> "$muttHome/muttrc"
