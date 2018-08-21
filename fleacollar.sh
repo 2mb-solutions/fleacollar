@@ -188,11 +188,7 @@ initialize_directory()
         echo "set text_flowed=yes" >> "$muttHome/muttrc"
         # I need to figure out a way to detect and set the language for the next setting.
         echo "set send_charset=us-ascii:utf-8" >> "$muttHome/muttrc"
-        if command -v w3m &> /dev/null ; then
-            echo "set pager = 'w3m'" >> "$muttHome/muttrc"
-        else
-            echo "set pager = 'builtin'" >> "$muttHome/muttrc"
-        fi
+        echo "set pager = 'builtin'" >> "$muttHome/muttrc"
         echo "set pager_stop = 'yes'" >> "$muttHome/muttrc"
         echo "set sort=threads" >> "$muttHome/muttrc"
         echo "set beep_new=yes" >> "$muttHome/muttrc"
