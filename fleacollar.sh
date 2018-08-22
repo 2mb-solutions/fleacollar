@@ -134,6 +134,7 @@ initialize_directory()
             echo 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; xlsx2csv --all %s; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/rtf; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/vnd.oasis.opendocument.text; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
+            echo 'application/vnd.oasis.opendocument.spreadsheet;soffice --cat --convert-to csv:"Text - txt - csv (StarCalc)":"59,ANSI,1" %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/pdf; pdftotext %s -; copiousoutput' >> "$muttHome/mailcap"
             echo 'video/*; mpv --quiet %s; test=test -n "$DISPLAY"; needsterminal' >> "$muttHome/mailcap"
             echo 'video/*; mpv --quiet --no-video %s; needsterminal' >> "$muttHome/mailcap"
