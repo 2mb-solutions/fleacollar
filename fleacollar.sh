@@ -129,9 +129,11 @@ initialize_directory()
         esac
             echo 'audio/*; mpv --quiet %s; needsterminal' >> "$muttHome/mailcap"
             echo 'application/msword; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
+            echo 'application/vnd.openxmlformats-officedocument.wordprocessingml.document; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/vnd.ms-excel; xls2csv --all %s; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; xlsx2csv --all %s; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/rtf; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
+            echo 'application/vnd.oasis.opendocument.text; soffice --cat %s 2> /dev/null; copiousoutput' >> "$muttHome/mailcap"
             echo 'application/pdf; pdftotext %s -; copiousoutput' >> "$muttHome/mailcap"
             echo 'video/*; mpv --quiet %s; test=test -n "$DISPLAY"; needsterminal' >> "$muttHome/mailcap"
             echo 'video/*; mpv --quiet --no-video %s; needsterminal' >> "$muttHome/mailcap"
