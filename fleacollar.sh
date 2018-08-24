@@ -210,6 +210,7 @@ initialize_directory()
         echo "set message_cachedir=${muttHome/#$HOME/\~}/cache/bodies" >> "$muttHome/muttrc"
         echo "set certificate_file=${muttHome/#$HOME/\~}/certificates" >> "$muttHome/muttrc"
         echo "set markers=no" >> "$muttHome/muttrc"
+        echo "unset mark_old" >> "$muttHome/muttrc"
         echo "auto_view text/html" >> "$muttHome/muttrc"
         echo "alternative_order text/plain text/enriched text/html" >> "$muttHome/muttrc"
         echo "message-hook '!(~g|~G) ~b\"^ 5 dash charactersBEGIN\\ PGP\\ (SIGNED\\ )?MESSAGE\"' \"exec check-traditional-pgp\"" >> "$muttHome/muttrc"
