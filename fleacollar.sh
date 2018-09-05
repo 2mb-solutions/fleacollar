@@ -22,7 +22,7 @@ muttHome=~/.mutt
 check_dependancies()
 {
     local dep
-    for dep in gpg mutt ; do
+    for dep in dialog gettext gpg mutt ; do
        if ! command -v $dep &> /dev/null ; then
             echo "$(eval_gettext "\$dep is not installed. Please install $dep and run this script again.")"
             exit 1
