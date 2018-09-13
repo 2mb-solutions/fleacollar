@@ -162,6 +162,8 @@ initialize_directory()
     if ! [ -f "$muttHome/macros" ]; then
         echo "macro index 'c' '<change-folder>?<change-dir><home>^K=<enter>'" > "$muttHome/macros"
         echo "bind index \"^\" imap-fetch-mail\"" >> "$muttHome/macros"
+        echo "macro pager \cb <pipe-entry>'urlview'<enter> 'Follow links with urlview'" >> "$muttHome/macros"
+        echo "macro attach 'B' \"<pipe-entry>cat >~/.cache/mutt/mail.html && $BROWSER ~/.cache/\"" >> "$muttHome/macros"
     fi
     # Create basic muttrc
     if ! [ -f "$muttHome/muttrc" ]; then
